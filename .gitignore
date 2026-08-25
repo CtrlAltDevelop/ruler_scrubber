@@ -1,0 +1,26 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+pubspec_overrides.yaml
+
+# A library resolves against its consumers' constraints, not a pinned set.
+pubspec.lock
+
+# Generated example platform folders — the example is a source-only sample.
+example/android/
+example/ios/
+example/linux/
+example/macos/
+example/web/
+example/windows/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
