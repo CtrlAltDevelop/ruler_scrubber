@@ -10,6 +10,16 @@ topics:
   - widgets
   - accessibility
 
+screenshots:
+  - description: >-
+      Three ruler scrubbers on a light card — a price, a deposit percentage and
+      a temperature — with the middle one lit up mid-scrub.
+    path: doc/screenshot.png
+  - description: >-
+      The same three ruler scrubbers on a dark card, the middle one lit up
+      mid-scrub.
+    path: doc/screenshot_dark.png
+
 environment:
   sdk: ^3.13.0
   flutter: ">=3.47.0"
