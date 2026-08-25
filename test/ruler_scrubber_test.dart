@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -291,6 +291,99 @@ void main() {
       expect(ticks.majorColor, style.majorTickColor);
     });
 
+    testWidgets('draws the card in the shape it is given', (tester) async {
+      await tester.pumpWidget(
+        _harness(
+          value: 0.5,
+          tickStep: 0.01,
+          style: const RulerScrubberStyle(
+            shape: StadiumBorder(side: BorderSide(width: 3)),
+            backgroundColor: Color(0xFF101010),
+            borderColor: Color(0xFF202020),
+            activeBorderColor: Color(0xFF303030),
+            minorTickColor: Color(0xFF404040),
+            majorTickColor: Color(0xFF505050),
+            needleColor: Color(0xFF606060),
+          ),
+          onChanged: (_) {},
+        ),
+      );
+
+      final shape = _cardShape(tester);
+      expect(shape, isA<StadiumBorder>());
+      // The caller's side survives except for its colour, which is the
+      // scrubber's to animate.
+      expect(shape.side.width, 3);
+      expect(shape.side.color, const Color(0xFF202020));
+    });
+
+    testWidgets('defaults to a rounded card with a hairline border', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _harness(value: 0.5, tickStep: 0.01, onChanged: (_) {}),
+      );
+
+      final shape = _cardShape(tester);
+      expect(shape, isA<RoundedRectangleBorder>());
+      expect(shape.side.width, kRulerCardBorderWidth);
+    });
+
+    testWidgets('a shape with no side draws no border', (tester) async {
+      await tester.pumpWidget(
+        _harness(
+          value: 0.5,
+          tickStep: 0.01,
+          style: const RulerScrubberStyle(
+            shape: RoundedRectangleBorder(side: BorderSide.none),
+            backgroundColor: Color(0xFF101010),
+            borderColor: Color(0xFF202020),
+            activeBorderColor: Color(0xFF303030),
+            minorTickColor: Color(0xFF404040),
+            majorTickColor: Color(0xFF505050),
+            needleColor: Color(0xFF606060),
+          ),
+          onChanged: (_) {},
+        ),
+      );
+
+      expect(_cardShape(tester).side.style, BorderStyle.none);
+    });
+
+    testWidgets('the border takes the active colour while scrubbing', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _harness(
+          value: 0.5,
+          tickStep: 0.01,
+          style: const RulerScrubberStyle(
+            backgroundColor: Color(0xFF101010),
+            borderColor: Color(0xFF202020),
+            activeBorderColor: Color(0xFFFF0000),
+            minorTickColor: Color(0xFF404040),
+            majorTickColor: Color(0xFF505050),
+            needleColor: Color(0xFF606060),
+          ),
+          onChanged: (_) {},
+        ),
+      );
+
+      expect(_cardShape(tester).side.color, const Color(0xFF202020));
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(RulerScrubber)),
+      );
+      await gesture.moveBy(const Offset(-30, 0));
+      await tester.pump();
+      await tester.pump(kRulerActiveDuration);
+
+      expect(_cardShape(tester).side.color, const Color(0xFFFF0000));
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('RulerScrubberStyle.fromTheme uses the colour scheme', (
       tester,
     ) async {
@@ -304,6 +397,20 @@ void main() {
       expect(style.needleColor, theme.colorScheme.onSurfaceVariant);
     });
   });
+}
+
+/// The outline the card is actually painted with, which is the shape the style
+/// carries with the scrubber's own border colour applied to its side.
+OutlinedBorder _cardShape(WidgetTester tester) {
+  final container = tester.widget<AnimatedContainer>(
+    find
+        .descendant(
+          of: find.byType(RulerScrubber),
+          matching: find.byType(AnimatedContainer),
+        )
+        .first,
+  );
+  return (container.decoration! as ShapeDecoration).shape as OutlinedBorder;
 }
 
 /// A scrubber of a fixed width, so a drag in pixels means the same thing in

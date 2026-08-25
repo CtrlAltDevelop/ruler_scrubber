@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:ruler_scrubber/ruler_scrubber.dart';
 
 void main() => runApp(const ExampleApp());
@@ -127,11 +127,14 @@ class _ExamplePageState extends State<ExamplePage> {
                   ),
                 ),
 
-                // Styled from design-system tokens rather than from the theme.
+                // Styled from design-system tokens rather than from the
+                // theme, and given a shape of its own: the package has no
+                // opinion about the corner, so a StadiumBorder is as
+                // available as the default rounded rectangle.
                 _Field(
                   label: 'Temperature',
                   readout: '${_temperature.toStringAsFixed(1)}°C',
-                  caption: 'Drawn with an explicit RulerScrubberStyle.',
+                  caption: 'Explicit RulerScrubberStyle, with a pill shape.',
                   child: RulerScrubber(
                     value: _temperature,
                     min: -10,
@@ -142,6 +145,7 @@ class _ExamplePageState extends State<ExamplePage> {
                     formatValue: (value) =>
                         '${value.toStringAsFixed(1)} degrees',
                     style: RulerScrubberStyle(
+                      shape: const StadiumBorder(side: BorderSide(width: 1.5)),
                       backgroundColor: theme.colorScheme.surfaceContainerLowest,
                       borderColor: theme.colorScheme.outlineVariant,
                       activeBorderColor: const Color(0xFFE1663B),

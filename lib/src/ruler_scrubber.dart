@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:figma_squircle/figma_squircle.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ruler_scrubber_metrics.dart';
 import 'ruler_scrubber_style.dart';
@@ -341,14 +340,11 @@ class _RulerCard extends StatelessWidget {
       ),
       decoration: ShapeDecoration(
         color: style.backgroundColor,
-        shape: SmoothRectangleBorder(
-          side: BorderSide(
-            width: kRulerCardBorderWidth,
+        // The caller's shape, drawn in the scrubber's border colour: the
+        // corner is theirs, whether it lights up is ours.
+        shape: style.shape.copyWith(
+          side: style.shape.side.copyWith(
             color: isActive ? style.activeBorderColor : style.borderColor,
-          ),
-          borderRadius: SmoothBorderRadius(
-            cornerRadius: kRulerCardRadius,
-            cornerSmoothing: 1,
           ),
         ),
         shadows: isActive ? style.activeShadows : const [],

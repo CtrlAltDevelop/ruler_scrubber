@@ -1,6 +1,6 @@
-// Renders the screenshots that README.md and pub.dev show, so the pictures of
-// the widget are regenerated from the widget rather than recaptured by hand
-// and left to go stale.
+// Renders the still screenshots that README.md and pub.dev show, so the
+// pictures of the widget are regenerated from the widget rather than
+// recaptured by hand and left to go stale.
 //
 //     flutter test tool/screenshot_test.dart
 //
@@ -8,15 +8,14 @@
 // device, no window and no app, just the widget painted into an image. One
 // scrubber in each shot is held mid-drag, because the lit-up state is half of
 // what the control looks like and a still of the idle one hides it.
+//
+// See tool/animation_test.dart for the moving version.
 
-import 'dart:io';
-import 'dart:ui' as ui;
-
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruler_scrubber/ruler_scrubber.dart';
+
+import 'rendering.dart';
 
 /// Where the images are written, relative to the package root.
 const _outputDirectory = 'doc';
@@ -25,32 +24,10 @@ const _outputDirectory = 'doc';
 /// pub.dev's carousel scales down from.
 const _pixelRatio = 2.0;
 
-/// Real text is the whole point of a screenshot, and the test environment
-/// draws with a font whose every glyph is a box. These are the system faces
-/// to try, best first; the shot is skipped rather than made unreadable if
-/// none of them are there.
-const _fontCandidates = <String, List<String>>{
-  'SF Pro': ['/System/Library/Fonts/SFNS.ttf'],
-  'Helvetica Neue': ['/System/Library/Fonts/HelveticaNeue.ttc'],
-  'Arial': [
-    '/System/Library/Fonts/Supplemental/Arial.ttf',
-    '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
-  ],
-};
-
 void main() {
   late String fontFamily;
 
-  setUpAll(() async {
-    final family = await _loadFirstAvailableFont();
-    if (family == null) {
-      fail(
-        'No system font found to render the screenshots with. Tried:\n'
-        '${_fontCandidates.values.expand((p) => p).join('\n')}',
-      );
-    }
-    fontFamily = family;
-  });
+  setUpAll(() async => fontFamily = await loadRenderFont());
 
   testWidgets('light', (tester) async {
     await _capture(
@@ -69,24 +46,6 @@ void main() {
       fileName: 'screenshot_dark.png',
     );
   });
-}
-
-/// Loads the first font in [_fontCandidates] that this machine actually has,
-/// and returns the family it was registered under.
-Future<String?> _loadFirstAvailableFont() async {
-  for (final MapEntry(key: family, value: paths) in _fontCandidates.entries) {
-    final files = paths.map(File.new).where((f) => f.existsSync()).toList();
-    if (files.isEmpty) continue;
-
-    final loader = FontLoader(family);
-    for (final file in files) {
-      final bytes = await file.readAsBytes();
-      loader.addFont(Future.value(ByteData.sublistView(bytes)));
-    }
-    await loader.load();
-    return family;
-  }
-  return null;
 }
 
 final _boundaryKey = GlobalKey();
@@ -123,35 +82,12 @@ Future<void> _capture(
   // Long enough for the border and needle to finish taking the accent colour.
   await tester.pump(kRulerActiveDuration);
 
-  await _writeBoundary(tester, fileName);
+  final frame = await capture(tester, _boundaryKey, pixelRatio: _pixelRatio);
+  writeOutput('$_outputDirectory/$fileName', frame.bytes);
 
   // Let the gesture go, so the widget is not disposed mid-drag.
   await gesture.up();
   await tester.pumpAndSettle();
-}
-
-/// Writes the keyed boundary's pixels out as a PNG.
-Future<void> _writeBoundary(WidgetTester tester, String fileName) async {
-  final boundary =
-      _boundaryKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-
-  late Uint8List png;
-  await tester.runAsync(() async {
-    final image = await boundary.toImage(pixelRatio: _pixelRatio);
-    try {
-      final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      png = data!.buffer.asUint8List();
-    } finally {
-      image.dispose();
-    }
-  });
-
-  final file = File('$_outputDirectory/$fileName');
-  file.parent.createSync(recursive: true);
-  file.writeAsBytesSync(png);
-
-  // ignore: avoid_print — this is a tool; the path is its output.
-  print('Wrote ${file.path} (${(png.length / 1024).round()} KB)');
 }
 
 /// The scene the screenshots show: three scrubbers on a card, sized to their
@@ -219,6 +155,8 @@ class _Sample extends StatelessWidget {
                     max: 100,
                     tickStep: 1,
                   ),
+                  // A shape of its own, since the card's corner is the
+                  // caller's to choose.
                   _ScrubberSample(
                     label: 'Temperature',
                     readout: '21.5°C',
@@ -226,6 +164,15 @@ class _Sample extends StatelessWidget {
                     min: -10,
                     max: 40,
                     tickStep: 0.1,
+                    style: RulerScrubberStyle(
+                      shape: const StadiumBorder(side: BorderSide(width: 1.5)),
+                      backgroundColor: theme.colorScheme.surface,
+                      borderColor: theme.colorScheme.outlineVariant,
+                      activeBorderColor: theme.colorScheme.primary,
+                      minorTickColor: theme.colorScheme.outlineVariant,
+                      majorTickColor: theme.colorScheme.onSurfaceVariant,
+                      needleColor: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -247,6 +194,7 @@ class _ScrubberSample extends StatelessWidget {
     required this.min,
     required this.max,
     required this.tickStep,
+    this.style,
   });
 
   /// The row the screenshot holds a finger on.
@@ -258,6 +206,7 @@ class _ScrubberSample extends StatelessWidget {
   final double min;
   final double max;
   final double tickStep;
+  final RulerScrubberStyle? style;
 
   @override
   Widget build(BuildContext context) {
@@ -287,6 +236,7 @@ class _ScrubberSample extends StatelessWidget {
           max: max,
           tickStep: tickStep,
           semanticLabel: label,
+          style: style,
           onChanged: (_) {},
         ),
       ],

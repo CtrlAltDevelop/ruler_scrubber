@@ -7,13 +7,20 @@ An accessible, performant ruler-style numeric input for Flutter. The ruler
 scrolls under a stationary needle, so a wide range stays scrubbable at a fine
 grain instead of being compressed into one screen width of slider track.
 
+![A ruler scrubber being scrubbed: the card lights up, the price counts along with the ruler, and the flick coasts to a stop](doc/scrubbing.gif)
+
+The card lights up under the finger, the value counts along with the ruler, and
+the flick carries on scrolling after the finger has gone.
+
 ![Three ruler scrubbers on a light card, the middle one lit up mid-scrub](doc/screenshot.png)
 
 ![The same three scrubbers on a dark card, the middle one lit up mid-scrub](doc/screenshot_dark.png)
 
-Both shots are of the widget itself, rendered by
-[`tool/screenshot_test.dart`](tool/screenshot_test.dart) — the middle scrubber
-is held mid-drag, which is why its card and needle carry the accent colour.
+All three pictures are of the widget itself, rendered by
+[`tool/screenshot_test.dart`](tool/screenshot_test.dart) and
+[`tool/animation_test.dart`](tool/animation_test.dart) rather than captured by
+hand. In the stills the middle scrubber is held mid-drag, which is why its card
+and needle carry the accent colour.
 
 ## Why a ruler
 
@@ -29,6 +36,23 @@ travel.
 ```sh
 flutter pub add ruler_scrubber
 ```
+
+The package is built on [`material_ui`](https://pub.dev/packages/material_ui),
+the official Material Design library that used to live inside the SDK as
+`package:flutter/material.dart`. If your app still imports the SDK copy, run
+Flutter's own migration once and everything lines up:
+
+```sh
+dart fix --apply --code=migrate_design_widgets
+```
+
+Until you run it the scrubber still builds and scrubs normally, but it looks
+for a `material_ui` theme your app does not yet provide and falls back to the
+baseline Material palette rather than yours. Flutter's
+`MaterialUiCompatibilityBridge` does not cover this direction — it carries a
+modern theme down to legacy widgets, not the other way about. Passing an
+explicit `style` skips the theme lookup altogether and is unaffected either
+way.
 
 ## Usage
 
@@ -64,7 +88,7 @@ setting it from anywhere other than the ruler runs the ruler to it.
 | `onChangeEnd` | `ValueChanged<double>?` | The value the ruler came to rest on, for work too expensive to run per frame. |
 | `semanticLabel` | `String` | Spoken name of the control. |
 | `formatValue` | `String Function(double)?` | Spoken form of the value. Defaults to two decimal places. |
-| `style` | `RulerScrubberStyle?` | Colours and shadows. Defaults to the ambient `ThemeData`. |
+| `style` | `RulerScrubberStyle?` | Colours, card shape and shadows. Defaults to the ambient `ThemeData`. |
 
 `tickStep` and `step` do different jobs and are worth setting separately.
 `tickStep` is the feel of the control — how far the finger travels per unit of
@@ -78,6 +102,7 @@ Material theme. Pass one to use design-system tokens instead:
 
 ```dart
 RulerScrubberStyle(
+  shape: const StadiumBorder(side: BorderSide(width: 1.5)),
   backgroundColor: tokens.surface,
   borderColor: tokens.border,
   activeBorderColor: tokens.accent,
@@ -93,9 +118,32 @@ The card and needle take their `active` treatment while a scrub is in
 progress — including the coast after a flick — so the field being edited is
 obvious in a form full of them.
 
-Fixed geometry (tick spacing, needle size, card radius, animation durations)
-lives in `ruler_scrubber_metrics.dart` as top-level constants, if you need to
-line something else up with the ruler.
+#### The border
+
+`shape` takes any `OutlinedBorder`, so the scrubber can be given the same
+corner as everything else on your screen and this package needs no opinion
+about which corner that is:
+
+```dart
+shape: const RoundedRectangleBorder(          // the default, radius 10
+  side: BorderSide(width: 1),
+  borderRadius: BorderRadius.all(Radius.circular(10)),
+),
+shape: const StadiumBorder(side: BorderSide(width: 1.5)),   // a pill
+shape: const ContinuousRectangleBorder(...),                // a superellipse
+shape: SmoothRectangleBorder(...),                          // figma_squircle
+shape: const RoundedRectangleBorder(side: BorderSide.none), // no border
+```
+
+The shape's own `side` is drawn as given, except for its colour: that comes
+from `borderColor` and `activeBorderColor` so the outline can light up while
+the ruler is being scrubbed. Squircles work the same as anything else —
+`SmoothRectangleBorder` is an `OutlinedBorder` — but they come from your
+`pubspec.yaml` rather than this package's.
+
+Fixed geometry (tick spacing, needle size, default card radius, animation
+durations) lives in `ruler_scrubber_metrics.dart` as top-level constants, if
+you need to line something else up with the ruler.
 
 ## Accessibility
 
@@ -132,6 +180,7 @@ flutter run
 flutter analyze
 flutter test
 flutter test tool/screenshot_test.dart   # regenerate doc/*.png
+flutter test tool/animation_test.dart    # regenerate doc/scrubbing.gif
 ```
 
 The screenshots are rendered from the widget itself, so they cannot drift from

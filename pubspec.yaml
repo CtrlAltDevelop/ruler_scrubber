@@ -1,6 +1,6 @@
 name: ruler_scrubber
 description: A performant, accessible ruler-style numeric scrubber for Flutter.
-version: 0.1.0
+version: 1.0.0
 repository: https://github.com/CtrlAltDevelop/ruler_scrubber
 issue_tracker: https://github.com/CtrlAltDevelop/ruler_scrubber/issues
 
@@ -12,12 +12,16 @@ topics:
 
 screenshots:
   - description: >-
+      A ruler scrubber being scrubbed: the card lights up under the finger, the
+      price counts along with the ruler, and the flick coasts to a stop.
+    path: doc/scrubbing.gif
+  - description: >-
       Three ruler scrubbers on a light card — a price, a deposit percentage and
-      a temperature — with the middle one lit up mid-scrub.
+      a pill-shaped temperature — with the middle one lit up mid-scrub.
     path: doc/screenshot.png
   - description: >-
       The same three ruler scrubbers on a dark card, the middle one lit up
-      mid-scrub.
+      mid-scrub and the last given a shape of its own.
     path: doc/screenshot_dark.png
 
 environment:
@@ -25,11 +29,14 @@ environment:
   flutter: ">=3.47.0"
 
 dependencies:
-  figma_squircle: ^0.6.3
   flutter:
     sdk: flutter
+  material_ui: ^1.1.0
 
 dev_dependencies:
+  # Encodes the animated demo in tool/animation_test.dart. Tools only — it is
+  # not on the path of anything the package ships.
+  image: ^4.9.2
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
