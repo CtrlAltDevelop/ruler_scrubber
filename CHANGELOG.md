@@ -42,6 +42,11 @@ Everything here is additive: a 1.0.0 scrubber compiles and behaves as it did.
   `ClampingScrollPhysics`: a ruler that bounced off its ends would report
   values it does not have.
 
+### Wider SDK support
+
+- The floor drops to Dart 3.12 and Flutter 3.44, matching what `material_ui`
+  itself requires rather than sitting above it.
+
 ### Theming
 
 - `RulerScrubberTheme` supplies a style to every scrubber beneath it, so an app
