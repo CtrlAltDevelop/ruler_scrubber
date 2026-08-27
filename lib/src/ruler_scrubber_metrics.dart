@@ -63,3 +63,24 @@ const Duration kRulerSettleDuration = Duration(milliseconds: 260);
 
 /// How long the card and the needle take to pick up their scrubbing colours.
 const Duration kRulerActiveDuration = Duration(milliseconds: 160);
+
+/// Height of the strip the tick labels are drawn in, and the gap between it
+/// and the ruler above it. Fixed rather than measured, so turning labels on
+/// changes the scrubber's height by a known amount and a row of them stays
+/// aligned whatever they say.
+const double kRulerLabelHeight = 14;
+const double kRulerLabelGap = 4;
+
+/// Font size of a tick label when the style carries no [TextStyle] of its own.
+const double kRulerLabelFontSize = 10;
+
+/// How far one press of an arrow key moves a focused ruler, as a fraction of
+/// the range, when there is no `step` to move by instead.
+const double kRulerKeyNudgeFraction = 1 / 20;
+
+/// How far Page Up and Page Down move a focused ruler, relative to one press
+/// of an arrow key.
+const int kRulerPageNudgeMultiple = 10;
+
+/// Opacity a disabled scrubber is drawn at.
+const double kRulerDisabledOpacity = 0.38;

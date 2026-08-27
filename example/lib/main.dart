@@ -60,6 +60,10 @@ class _ExamplePageState extends State<ExamplePage> {
   /// [RulerScrubber.onChanged] and [RulerScrubber.onChangeEnd] is visible.
   double? _settledPrice;
 
+  /// Whether the price is locked, showing what a disabled scrubber looks
+  /// like: dimmed and inert, but still readable and still a slider.
+  bool _priceLocked = false;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -68,6 +72,11 @@ class _ExamplePageState extends State<ExamplePage> {
       appBar: AppBar(
         title: const Text('ruler_scrubber'),
         actions: [
+          IconButton(
+            tooltip: _priceLocked ? 'Unlock the price' : 'Lock the price',
+            icon: Icon(_priceLocked ? Icons.lock : Icons.lock_open),
+            onPressed: () => setState(() => _priceLocked = !_priceLocked),
+          ),
           IconButton(
             tooltip: widget.isDark ? 'Light theme' : 'Dark theme',
             icon: Icon(widget.isDark ? Icons.light_mode : Icons.dark_mode),
@@ -91,8 +100,10 @@ class _ExamplePageState extends State<ExamplePage> {
                 _Field(
                   label: 'Price',
                   readout: '£${_price.toStringAsFixed(2)}',
-                  caption: _settledPrice == null
-                      ? 'Scrub the ruler to set a price.'
+                  caption: _priceLocked
+                      ? 'Disabled: dimmed and inert, still a slider.'
+                      : _settledPrice == null
+                      ? 'Scrub it, or nudge it with the arrow keys.'
                       : 'Settled on £${_settledPrice!.toStringAsFixed(2)}.',
                   child: RulerScrubber(
                     value: _price,
@@ -100,6 +111,10 @@ class _ExamplePageState extends State<ExamplePage> {
                     max: 100,
                     step: 0.01,
                     tickStep: 0.02,
+                    enabled: !_priceLocked,
+                    // So the arrow keys, Page Up/Down and Home/End work
+                    // without a click first on a desktop build.
+                    autofocus: true,
                     semanticLabel: 'Price',
                     formatValue: (value) =>
                         '${value.toStringAsFixed(2)} pounds',
@@ -114,13 +129,17 @@ class _ExamplePageState extends State<ExamplePage> {
                 _Field(
                   label: 'Deposit',
                   readout: '${_percent.round()}%',
-                  caption: 'Snapped to whole percent.',
+                  caption: 'Snapped to whole percent, and numbered.',
                   child: RulerScrubber(
                     value: _percent,
                     min: 0,
                     max: 100,
                     step: 1,
                     tickStep: 1,
+                    // A numbered ruler: every tenth tick carries its value,
+                    // hung below the ruler so the needle stays put.
+                    labelFormat: (value) => value.round().toString(),
+                    labelEvery: 10,
                     semanticLabel: 'Deposit percentage',
                     formatValue: (value) => '${value.round()} percent',
                     onChanged: (value) => setState(() => _percent = value),
@@ -149,6 +168,7 @@ class _ExamplePageState extends State<ExamplePage> {
                       backgroundColor: theme.colorScheme.surfaceContainerLowest,
                       borderColor: theme.colorScheme.outlineVariant,
                       activeBorderColor: const Color(0xFFE1663B),
+                      focusedBorderColor: const Color(0xFF8F9BB3),
                       minorTickColor: theme.colorScheme.outlineVariant,
                       majorTickColor: theme.colorScheme.onSurfaceVariant,
                       needleColor: theme.colorScheme.onSurfaceVariant,

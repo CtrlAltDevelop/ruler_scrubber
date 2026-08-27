@@ -1,5 +1,55 @@
 # Changelog
 
+## 1.1.0
+
+Everything here is additive: a 1.0.0 scrubber compiles and behaves as it did.
+
+### Keyboard and focus
+
+- The scrubber is now reachable without a finger. Give it focus and the arrow
+  keys nudge it by `step` (or a twentieth of the range when there is no step),
+  Page Up and Page Down move it in strides of ten of those, and Home and End
+  run it to either end of the range.
+- `focusNode` and `autofocus` let the scrubber take part in an existing focus
+  traversal, and a scrub takes focus so the keyboard picks up where the finger
+  left off.
+- `RulerScrubberStyle.focusedBorderColor` lights the card while it holds focus
+  but is not being scrubbed. It falls back to `activeBorderColor`, so a style
+  written against 1.0.0 shows focus without being changed.
+
+### Numbered rulers
+
+- `labelFormat` prints a number under labelled ticks; `labelEvery` sets how far
+  apart they are. Labels are laid out once per number per step of the end fade
+  and then reused, so numbering a ruler keeps text layout off the path of a
+  scrub.
+- Labels hang below the ruler rather than moving it, so the needle stays where
+  it was and turning them on grows the scrubber by a known amount.
+- `RulerScrubberStyle.labelStyle` sets the type. Only colour, size, weight,
+  family and features are used — the strip is a fixed height, so a row of
+  scrubbers cannot end up at different heights because one counts in a taller
+  font.
+
+### More control over the scrub
+
+- `onChangeStart` reports the value a scrub began at, alongside the existing
+  `onChangeEnd`.
+- `enabled` draws the scrubber dimmed and inert, still readable and still a
+  slider to assistive technology.
+- `enableFeedback` turns off the per-tick haptics for a screen that has several
+  scrubbers on it.
+- `physics` overrides the scroll physics. The default is unchanged and still
+  `ClampingScrollPhysics`: a ruler that bounced off its ends would report
+  values it does not have.
+
+### Theming
+
+- `RulerScrubberTheme` supplies a style to every scrubber beneath it, so an app
+  sets its treatment once instead of threading it through every call site. A
+  scrubber given a `style` of its own still wins.
+- `RulerScrubberStyle.lerp` interpolates between two styles, for animating a
+  scrubber between design states.
+
 ## 1.0.0
 
 Initial release.

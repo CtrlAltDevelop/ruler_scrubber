@@ -85,15 +85,48 @@ setting it from anywhere other than the ruler runs the ruler to it.
 | `tickStep` | `double` | How much the value changes over one tick — the scale of the ruler, and so how fast it moves under the finger. |
 | `step` | `double?` | Granularity of the reported value. `null` scrubs continuously. |
 | `onChanged` | `ValueChanged<double>` | Every value the scrub passes through. |
+| `onChangeStart` | `ValueChanged<double>?` | The value a scrub began at. |
 | `onChangeEnd` | `ValueChanged<double>?` | The value the ruler came to rest on, for work too expensive to run per frame. |
 | `semanticLabel` | `String` | Spoken name of the control. |
 | `formatValue` | `String Function(double)?` | Spoken form of the value. Defaults to two decimal places. |
+| `labelFormat` | `String Function(double)?` | Prints a number under labelled ticks. `null` — the default — draws a ruler of bare marks. |
+| `labelEvery` | `int` | How many ticks apart the numbered ones are. Defaults to every major (fifth) tick. |
+| `enabled` | `bool` | Whether the ruler can be scrubbed. A disabled one is dimmed and inert, still readable and still a slider. |
+| `enableFeedback` | `bool` | Whether crossing a tick clicks. Turn it off on a screen with several scrubbers. |
+| `focusNode`, `autofocus` | `FocusNode?`, `bool` | Take part in an existing focus traversal. |
+| `physics` | `ScrollPhysics?` | Scroll physics for the ruler. Defaults to `ClampingScrollPhysics`. |
 | `style` | `RulerScrubberStyle?` | Colours, card shape and shadows. Defaults to the ambient `ThemeData`. |
 
 `tickStep` and `step` do different jobs and are worth setting separately.
 `tickStep` is the feel of the control — how far the finger travels per unit of
 value. `step` is the contract with your model — which values are legal. A
 `tickStep` coarser than `step` scrubs quickly but still lands on exact values.
+
+### Numbered rulers
+
+Pass `labelFormat` to print a number under the labelled ticks:
+
+```dart
+RulerScrubber(
+  value: temperature,
+  min: -20,
+  max: 40,
+  tickStep: 0.2,
+  labelFormat: (value) => '${value.round()}°',
+  labelEvery: 10, // every tenth tick, rather than every fifth
+  semanticLabel: 'Temperature',
+  onChanged: (value) => setState(() => temperature = value),
+)
+```
+
+The numbers hang below the ruler rather than moving it, so the needle stays
+where it was and turning them on grows the scrubber by a fixed amount. They
+fade out towards the ends exactly as the ticks do.
+
+Each number is laid out once per step of that fade and then reused, so
+numbering a ruler keeps text layout off the path of a scrub. Keep the format
+cheap and stable all the same: one that returns something different for every
+tick has nothing to reuse.
 
 ### Styling
 
@@ -106,6 +139,8 @@ RulerScrubberStyle(
   backgroundColor: tokens.surface,
   borderColor: tokens.border,
   activeBorderColor: tokens.accent,
+  focusedBorderColor: tokens.focusRing,
+  labelStyle: tokens.captionSmall,
   minorTickColor: tokens.borderSubtle,
   majorTickColor: tokens.textSecondary,
   needleColor: tokens.textSecondary,
@@ -136,10 +171,29 @@ shape: const RoundedRectangleBorder(side: BorderSide.none), // no border
 ```
 
 The shape's own `side` is drawn as given, except for its colour: that comes
-from `borderColor` and `activeBorderColor` so the outline can light up while
-the ruler is being scrubbed. Squircles work the same as anything else —
+from `borderColor`, `focusedBorderColor` and `activeBorderColor`, so the
+outline can light up while the ruler is focused or being scrubbed. Squircles work the same as anything else —
 `SmoothRectangleBorder` is an `OutlinedBorder` — but they come from your
 `pubspec.yaml` rather than this package's.
+
+#### One style for the whole app
+
+Wrap `RulerScrubberTheme` around the app — or around the one form that wants a
+different treatment — instead of threading the same style through every call
+site:
+
+```dart
+RulerScrubberTheme(
+  style: RulerScrubberStyle.fromTheme(Theme.of(context)).copyWith(
+    shape: const StadiumBorder(side: BorderSide(width: 1.5)),
+    focusedBorderColor: tokens.focusRing,
+  ),
+  child: child,
+)
+```
+
+A scrubber given a `style` of its own still wins. `RulerScrubberStyle.lerp`
+interpolates between two styles if you want to animate between design states.
 
 Fixed geometry (tick spacing, needle size, default card radius, animation
 durations) lives in `ruler_scrubber_metrics.dart` as top-level constants, if
@@ -150,9 +204,26 @@ you need to line something else up with the ruler.
 The scrubber presents itself as a slider to the platform's assistive
 technology: `semanticLabel` is its name, `formatValue` renders its value, and
 the increase/decrease actions nudge by `step` — or by a twentieth of the range
-when `step` is `null`. Scrubbing clicks once per tick via
-`HapticFeedback.selectionClick`, and a ruler running to a value set elsewhere
-stays silent.
+when `step` is `null`. A disabled scrubber still reads as a slider, marked
+unavailable rather than removed.
+
+It is reachable without a finger too. Give it focus — with `autofocus`, with a
+`focusNode` of your own, or by tabbing to it — and:
+
+| Key | Moves |
+| --- | --- |
+| `→` `↑` / `←` `↓` | one nudge: `step`, or a twentieth of the range |
+| `Page Up` / `Page Down` | ten nudges |
+| `Home` / `End` | to `min` / `max` |
+
+A nudge is snapped onto the same grid a scrub reports on, so the keyboard
+cannot land on a value a drag never could. The card takes
+`focusedBorderColor` while it holds focus, and a scrub takes focus, so the
+keyboard picks up where the finger left off.
+
+Scrubbing clicks once per tick via `HapticFeedback.selectionClick` — set
+`enableFeedback: false` to turn that off — and a ruler running to a value set
+elsewhere stays silent.
 
 ## Performance
 
