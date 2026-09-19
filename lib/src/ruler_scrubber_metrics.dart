@@ -23,6 +23,8 @@ const double kRulerStripHeight =
 
 /// The triangle that caps the needle, marking the read-off point.
 const double kRulerCaretWidth = 7;
+
+/// Height of the triangle capping the needle. See [kRulerCaretWidth].
 const double kRulerCaretHeight = 4;
 
 /// Space between the caret and the needle under it.
@@ -31,6 +33,8 @@ const double kRulerCaretGap = 2;
 /// The bar the ruler is read against, standing still in the middle of the
 /// card while the ticks travel under it.
 const double kRulerNeedleWidth = 2;
+
+/// Height of the needle bar. See [kRulerNeedleWidth].
 const double kRulerNeedleHeight = 20;
 
 /// Corner radius of the needle, which makes its ends round.

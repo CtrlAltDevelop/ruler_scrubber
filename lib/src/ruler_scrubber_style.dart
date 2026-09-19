@@ -230,12 +230,14 @@ class RulerScrubberStyle {
 /// treatment — instead of threading the same style through every call site. A
 /// scrubber given a `style` of its own still wins.
 class RulerScrubberTheme extends InheritedWidget {
+  /// Makes [style] the default for every [RulerScrubber] under [child].
   const RulerScrubberTheme({
     super.key,
     required this.style,
     required super.child,
   });
 
+  /// The style scrubbers beneath this widget fall back to.
   final RulerScrubberStyle style;
 
   /// The style from the nearest enclosing [RulerScrubberTheme], or `null` when
