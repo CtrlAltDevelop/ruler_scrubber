@@ -23,6 +23,13 @@ screenshots:
       The same three ruler scrubbers on a dark card, the middle one lit up
       mid-scrub and the last given a shape of its own.
     path: doc/screenshot_dark.png
+  - description: >-
+      The same three ruler scrubbers with borderless: true — the card keeps its
+      corner and background but loses its outline.
+    path: doc/screenshot_borderless.png
+  - description: >-
+      The borderless scrubbers on a dark card, the middle one mid-scrub.
+    path: doc/screenshot_borderless_dark.png
 
 environment:
   sdk: ^3.12.0

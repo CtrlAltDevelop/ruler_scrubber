@@ -10,6 +10,10 @@ import 'ruler_scrubber_metrics.dart';
 /// then to accessible defaults derived from [ThemeData].
 @immutable
 class RulerScrubberStyle {
+  /// Creates a style from explicit colours.
+  ///
+  /// [RulerScrubberStyle.fromTheme] fills them in from a [ThemeData] when
+  /// there are no design-system tokens to hand.
   const RulerScrubberStyle({
     required this.backgroundColor,
     required this.borderColor,
@@ -32,11 +36,25 @@ class RulerScrubberStyle {
     borderRadius: BorderRadius.all(Radius.circular(kRulerCardRadius)),
   );
 
+  /// Fill of the card the ruler runs inside.
   final Color backgroundColor;
+
+  /// Border colour while the scrubber is idle.
   final Color borderColor;
+
+  /// Border colour while the scrubber is being scrubbed, including the coast
+  /// after a flick.
   final Color activeBorderColor;
+
+  /// Colour of the short marks between the tall ones.
   final Color minorTickColor;
+
+  /// Colour of the tall marks, and of the tick labels unless [labelStyle] says
+  /// otherwise.
   final Color majorTickColor;
+
+  /// Colour of the needle and its caret while the scrubber is idle. It takes
+  /// [activeBorderColor] while scrubbing.
   final Color needleColor;
 
   /// Border colour while the scrubber holds keyboard focus but is not being
@@ -74,9 +92,14 @@ class RulerScrubberStyle {
   /// with it — [activeShadows] is what still marks an active scrubber.
   final bool borderless;
 
+  /// Shadows lifting the card while it is being scrubbed.
   final List<BoxShadow> activeShadows;
+
+  /// Shadows lifting the needle while it is being scrubbed.
   final List<BoxShadow> activeNeedleShadows;
 
+  /// A style derived from [theme]'s colour scheme: what a scrubber draws when
+  /// it is given no style and no [RulerScrubberTheme].
   static RulerScrubberStyle fromTheme(ThemeData theme) {
     final scheme = theme.colorScheme;
     return RulerScrubberStyle(
@@ -97,6 +120,7 @@ class RulerScrubberStyle {
     );
   }
 
+  /// A copy of this style with the given fields replaced.
   RulerScrubberStyle copyWith({
     Color? backgroundColor,
     Color? borderColor,

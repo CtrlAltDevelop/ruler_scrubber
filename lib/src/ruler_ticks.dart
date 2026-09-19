@@ -28,6 +28,7 @@ const int _kLabelCacheLimit = 256;
 /// mask over the whole strip — a mask would cost a compositing layer on every
 /// frame of a scrub, and would take the needle down with it.
 class RulerTicks extends StatefulWidget {
+  /// Creates the strip of ticks for a ruler running [travel] pixels.
   const RulerTicks({
     super.key,
     required this.scroll,
@@ -49,7 +50,10 @@ class RulerTicks extends StatefulWidget {
   /// them, so a range that has run out looks like one.
   final double travel;
 
+  /// Colour of the short marks.
   final Color minorColor;
+
+  /// Colour of the tall marks.
   final Color majorColor;
 
   /// Renders the number under a labelled tick. `null` draws no labels, and is
@@ -66,6 +70,8 @@ class RulerTicks extends StatefulWidget {
   /// The value the ruler's first tick stands for, and how much each tick after
   /// it adds — between them, what a label says.
   final double minValue;
+
+  /// How much each tick adds to the value. See [minValue].
   final double tickStep;
 
   /// Direction the labels' own text runs in. The ruler itself always runs left

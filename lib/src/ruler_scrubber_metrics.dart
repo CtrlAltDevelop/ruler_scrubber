@@ -10,6 +10,8 @@ const double kRulerCardRadius = 10;
 /// Padding inside that card. Horizontal padding is what the ruler runs out
 /// under, so the ticks are not cut off flush against the border.
 const double kRulerCardPaddingH = 16;
+
+/// Vertical padding inside the card.
 const double kRulerCardPaddingV = 8;
 
 /// Width of the card's border.
@@ -22,12 +24,16 @@ const double kRulerStripHeight =
 /// The triangle that caps the needle, marking the read-off point.
 const double kRulerCaretWidth = 7;
 const double kRulerCaretHeight = 4;
+
+/// Space between the caret and the needle under it.
 const double kRulerCaretGap = 2;
 
 /// The bar the ruler is read against, standing still in the middle of the
 /// card while the ticks travel under it.
 const double kRulerNeedleWidth = 2;
 const double kRulerNeedleHeight = 20;
+
+/// Corner radius of the needle, which makes its ends round.
 const double kRulerNeedleRadius = 10;
 
 /// Distance between two ticks. Close enough that the ruler reads as a scale
@@ -41,6 +47,8 @@ const double kRulerTickWidth = 1;
 /// Both sit well inside the needle's own height, so the needle reads as
 /// standing over the ruler rather than as one more mark on it.
 const double kRulerMinorTickHeight = 8;
+
+/// Height of a tall tick.
 const double kRulerMajorTickHeight = 14;
 
 /// How far in from each end the ticks fade up to full strength.
@@ -69,6 +77,8 @@ const Duration kRulerActiveDuration = Duration(milliseconds: 160);
 /// changes the scrubber's height by a known amount and a row of them stays
 /// aligned whatever they say.
 const double kRulerLabelHeight = 14;
+
+/// Space between the ticks and the labels under them.
 const double kRulerLabelGap = 4;
 
 /// Font size of a tick label when the style carries no [TextStyle] of its own.

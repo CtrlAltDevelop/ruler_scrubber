@@ -27,6 +27,11 @@ import 'ruler_ticks.dart';
 /// Presentation only: it reports the value it was scrubbed to and draws the
 /// value it is given, and holds no opinion about what that value means.
 class RulerScrubber extends StatefulWidget {
+  /// Creates a ruler scrubber resting on [value], reporting scrubs through
+  /// [onChanged].
+  ///
+  /// [min] must not exceed [max], and [tickStep], [step] and [labelEvery] must
+  /// be positive.
   const RulerScrubber({
     super.key,
     required this.value,
@@ -56,7 +61,10 @@ class RulerScrubber extends StatefulWidget {
   /// out-of-range value cannot scroll the ruler off its ends.
   final double value;
 
+  /// The lowest value the ruler reaches. Its left end.
   final double min;
+
+  /// The highest value the ruler reaches. Its right end.
   final double max;
 
   /// How much the value changes over one tick of the ruler, and so how fast it
@@ -111,7 +119,11 @@ class RulerScrubber extends StatefulWidget {
   /// would pile up.
   final bool enableFeedback;
 
+  /// Focus node for keyboard control. The scrubber makes and disposes of its
+  /// own when none is given.
   final FocusNode? focusNode;
+
+  /// Whether the scrubber takes focus as soon as it is built.
   final bool autofocus;
 
   /// Scroll physics for the ruler. Defaults to [ClampingScrollPhysics] on

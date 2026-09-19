@@ -4,6 +4,8 @@
 
 - `RulerScrubberStyle.borderless` draws the card without its border, keeping
   the corner, background and padding.
+- Dartdoc on the remaining undocumented public members.
+- The borderless screenshots are listed on pub.dev.
 - CI moved to the shared reusable workflow in CtrlAltDevelop/ci-workflows:
   formatting, `analyze --fatal-infos`, the tests, the example, a changelog
   entry per version, and a pana score with no points lost — the same gate
