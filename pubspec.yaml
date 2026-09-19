@@ -1,6 +1,6 @@
 name: ruler_scrubber
 description: A performant, accessible ruler-style numeric scrubber for Flutter.
-version: 1.1.0
+version: 1.2.0
 repository: https://github.com/CtrlAltDevelop/ruler_scrubber
 issue_tracker: https://github.com/CtrlAltDevelop/ruler_scrubber/issues
 
@@ -31,12 +31,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  material_ui: ^1.1.0
+  material_ui: ">=1.1.0 <2.0.0"
 
 dev_dependencies:
   # Encodes the animated demo in tool/animation_test.dart. Tools only — it is
   # not on the path of anything the package ships.
-  image: ^4.9.2
-  flutter_lints: ^6.0.0
+  image: ">=4.9.2 <5.0.0"
+  flutter_lints: ">=6.0.0 <7.0.0"
   flutter_test:
     sdk: flutter

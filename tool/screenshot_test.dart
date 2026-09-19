@@ -46,6 +46,26 @@ void main() {
       fileName: 'screenshot_dark.png',
     );
   });
+
+  testWidgets('borderless light', (tester) async {
+    await _capture(
+      tester,
+      fontFamily: fontFamily,
+      brightness: Brightness.light,
+      borderless: true,
+      fileName: 'screenshot_borderless.png',
+    );
+  });
+
+  testWidgets('borderless dark', (tester) async {
+    await _capture(
+      tester,
+      fontFamily: fontFamily,
+      brightness: Brightness.dark,
+      borderless: true,
+      fileName: 'screenshot_borderless_dark.png',
+    );
+  });
 }
 
 final _boundaryKey = GlobalKey();
@@ -56,6 +76,7 @@ Future<void> _capture(
   required String fontFamily,
   required Brightness brightness,
   required String fileName,
+  bool borderless = false,
 }) async {
   // Large enough to lay the sample out without constraining it — the image is
   // cropped to the sample itself, not to this.
@@ -64,7 +85,11 @@ Future<void> _capture(
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
-    _Sample(fontFamily: fontFamily, brightness: brightness),
+    _Sample(
+      fontFamily: fontFamily,
+      brightness: brightness,
+      borderless: borderless,
+    ),
   );
 
   // Put a finger on the middle scrubber and hold it there, so the shot catches
@@ -93,10 +118,15 @@ Future<void> _capture(
 /// The scene the screenshots show: three scrubbers on a card, sized to their
 /// content so the captured image needs no cropping.
 class _Sample extends StatelessWidget {
-  const _Sample({required this.fontFamily, required this.brightness});
+  const _Sample({
+    required this.fontFamily,
+    required this.brightness,
+    this.borderless = false,
+  });
 
   final String fontFamily;
   final Brightness brightness;
+  final bool borderless;
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +138,9 @@ class _Sample extends StatelessWidget {
       ),
     );
     final isDark = brightness == Brightness.dark;
+    final baseStyle = borderless
+        ? RulerScrubberStyle.fromTheme(theme).copyWith(borderless: true)
+        : null;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -145,6 +178,7 @@ class _Sample extends StatelessWidget {
                     min: 0,
                     max: 100,
                     tickStep: 0.02,
+                    style: baseStyle,
                   ),
                   _ScrubberSample(
                     key: _ScrubberSample.activeKey,
@@ -154,6 +188,7 @@ class _Sample extends StatelessWidget {
                     min: 0,
                     max: 100,
                     tickStep: 1,
+                    style: baseStyle,
                   ),
                   // A shape of its own, since the card's corner is the
                   // caller's to choose.
@@ -172,6 +207,7 @@ class _Sample extends StatelessWidget {
                       minorTickColor: theme.colorScheme.outlineVariant,
                       majorTickColor: theme.colorScheme.onSurfaceVariant,
                       needleColor: theme.colorScheme.onSurfaceVariant,
+                      borderless: borderless,
                     ),
                   ),
                 ],

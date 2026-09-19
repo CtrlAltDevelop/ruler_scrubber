@@ -538,7 +538,9 @@ class _RulerCard extends StatelessWidget {
         // The caller's shape, drawn in the scrubber's border colour: the
         // corner is theirs, whether it lights up is ours.
         shape: style.shape.copyWith(
-          side: style.shape.side.copyWith(color: borderColor),
+          side: style.borderless
+              ? BorderSide.none
+              : style.shape.side.copyWith(color: borderColor),
         ),
         shadows: isActive ? style.activeShadows : const [],
       ),

@@ -53,34 +53,29 @@ void main() {
       final values = <double>[];
 
       await tester.pumpWidget(
-        _harness(
-          value: 0.5,
-          tickStep: 0.01,
-          step: 0.01,
-          onChanged: values.add,
-        ),
+        _harness(value: 0.5, tickStep: 0.01, step: 0.01, onChanged: values.add),
       );
 
       await tester.sendKeyEvent(LogicalKeyboardKey.pageUp);
-      expect(
-        values.last,
-        closeTo(0.5 + 0.01 * kRulerPageNudgeMultiple, 1e-9),
-      );
+      expect(values.last, closeTo(0.5 + 0.01 * kRulerPageNudgeMultiple, 1e-9));
 
       await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
-      expect(
-        values.last,
-        closeTo(0.5 - 0.01 * kRulerPageNudgeMultiple, 1e-9),
-      );
+      expect(values.last, closeTo(0.5 - 0.01 * kRulerPageNudgeMultiple, 1e-9));
     });
 
     testWidgets('home and end run to either end of the range', (tester) async {
       final values = <double>[];
 
       await tester.pumpWidget(
-        _harness(value: 0.5, tickStep: 0.01, min: 2, max: 8, onChanged: (v) {
-          values.add(v);
-        }),
+        _harness(
+          value: 0.5,
+          tickStep: 0.01,
+          min: 2,
+          max: 8,
+          onChanged: (v) {
+            values.add(v);
+          },
+        ),
       );
 
       await tester.sendKeyEvent(LogicalKeyboardKey.home);
@@ -120,7 +115,10 @@ void main() {
 
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
 
-      expect(values.last * 20, closeTo((values.last * 20).roundToDouble(), 1e-9));
+      expect(
+        values.last * 20,
+        closeTo((values.last * 20).roundToDouble(), 1e-9),
+      );
     });
 
     testWidgets('a key reports the end of the change as well', (tester) async {
@@ -223,12 +221,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _harness(
-          value: 0.5,
-          tickStep: 0.01,
-          style: style,
-          onChanged: (_) {},
-        ),
+        _harness(value: 0.5, tickStep: 0.01, style: style, onChanged: (_) {}),
       );
       await tester.pumpAndSettle();
 
@@ -347,7 +340,11 @@ Widget _harness({
   );
 }
 
-Future<void> _scrub(WidgetTester tester, Offset offset, {int steps = 12}) async {
+Future<void> _scrub(
+  WidgetTester tester,
+  Offset offset, {
+  int steps = 12,
+}) async {
   final gesture = await tester.startGesture(
     tester.getCenter(find.byType(RulerScrubber)),
   );

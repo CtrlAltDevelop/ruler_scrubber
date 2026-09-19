@@ -162,6 +162,36 @@ void main() {
     });
   });
 
+  group('borderless', () {
+    testWidgets('draws no border but keeps the corner', (tester) async {
+      Future<OutlinedBorder> shapeFor(bool borderless) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: RulerScrubber(
+                value: 0.5,
+                min: 0,
+                max: 1,
+                tickStep: 0.01,
+                semanticLabel: 'Price',
+                onChanged: (_) {},
+                style: _style().copyWith(borderless: borderless),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        return _cardShape(tester);
+      }
+
+      expect((await shapeFor(false)).side.style, BorderStyle.solid);
+
+      final shape = await shapeFor(true);
+      expect(shape.side.style, BorderStyle.none);
+      expect(shape, isA<RoundedRectangleBorder>());
+    });
+  });
+
   group('theme', () {
     testWidgets('takes the style from an enclosing RulerScrubberTheme', (
       tester,
@@ -286,15 +316,19 @@ void main() {
       const corner = Offset(5, 5);
 
       expect(
-        RulerScrubberStyle.lerp(a, b, 0)!.shape.getOuterPath(rect).contains(
-          corner,
-        ),
+        RulerScrubberStyle.lerp(
+          a,
+          b,
+          0,
+        )!.shape.getOuterPath(rect).contains(corner),
         isTrue,
       );
       expect(
-        RulerScrubberStyle.lerp(a, b, 1)!.shape.getOuterPath(rect).contains(
-          corner,
-        ),
+        RulerScrubberStyle.lerp(
+          a,
+          b,
+          1,
+        )!.shape.getOuterPath(rect).contains(corner),
         isFalse,
       );
     });
@@ -388,10 +422,7 @@ void main() {
 
       await _scrub(tester, const Offset(-140, 0));
 
-      expect(
-        calls.where((c) => c.method == 'HapticFeedback.vibrate'),
-        isEmpty,
-      );
+      expect(calls.where((c) => c.method == 'HapticFeedback.vibrate'), isEmpty);
     });
   });
 
@@ -564,7 +595,11 @@ Widget _harness({
   );
 }
 
-Future<void> _scrub(WidgetTester tester, Offset offset, {int steps = 12}) async {
+Future<void> _scrub(
+  WidgetTester tester,
+  Offset offset, {
+  int steps = 12,
+}) async {
   final gesture = await tester.startGesture(
     tester.getCenter(find.byType(RulerScrubber)),
   );

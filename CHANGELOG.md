@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0
+
+- `RulerScrubberStyle.borderless` draws the card without its border, keeping
+  the corner, background and padding.
+- CI moved to the shared reusable workflow in CtrlAltDevelop/ci-workflows:
+  formatting, `analyze --fatal-infos`, the tests, the example, a changelog
+  entry per version, and a pana score with no points lost — the same gate
+  across every package here.
+- Dependency bounds are explicit ranges rather than carets — a floor that
+  resolves on the supported SDK, the next major as the ceiling — so a consumer
+  already on an older version in the same major is not forced to move.
+- The README carries the pub, pub points, CI and licence badges the other
+  packages here carry.
+
 ## 1.1.0
 
 Everything here is additive: a 1.0.0 scrubber compiles and behaves as it did.

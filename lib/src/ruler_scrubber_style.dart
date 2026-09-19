@@ -20,6 +20,7 @@ class RulerScrubberStyle {
     this.focusedBorderColor,
     this.labelStyle,
     this.shape = defaultShape,
+    this.borderless = false,
     this.activeShadows = const [],
     this.activeNeedleShadows = const [],
   });
@@ -66,6 +67,13 @@ class RulerScrubberStyle {
   /// border, and a wider side to get a heavier one.
   final OutlinedBorder shape;
 
+  /// Draws the card without a border, whatever [shape]'s own side says.
+  ///
+  /// The corner, background and padding are kept; only the outline goes, so
+  /// the focus and scrub highlight that ride on the border colours are gone
+  /// with it — [activeShadows] is what still marks an active scrubber.
+  final bool borderless;
+
   final List<BoxShadow> activeShadows;
   final List<BoxShadow> activeNeedleShadows;
 
@@ -99,6 +107,7 @@ class RulerScrubberStyle {
     Color? needleColor,
     TextStyle? labelStyle,
     OutlinedBorder? shape,
+    bool? borderless,
     List<BoxShadow>? activeShadows,
     List<BoxShadow>? activeNeedleShadows,
   }) {
@@ -112,6 +121,7 @@ class RulerScrubberStyle {
       needleColor: needleColor ?? this.needleColor,
       labelStyle: labelStyle ?? this.labelStyle,
       shape: shape ?? this.shape,
+      borderless: borderless ?? this.borderless,
       activeShadows: activeShadows ?? this.activeShadows,
       activeNeedleShadows: activeNeedleShadows ?? this.activeNeedleShadows,
     );
@@ -146,6 +156,7 @@ class RulerScrubberStyle {
       needleColor: Color.lerp(a.needleColor, b.needleColor, t)!,
       labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
       shape: OutlinedBorder.lerp(a.shape, b.shape, t) ?? b.shape,
+      borderless: t < 0.5 ? a.borderless : b.borderless,
       activeShadows:
           BoxShadow.lerpList(a.activeShadows, b.activeShadows, t) ?? const [],
       activeNeedleShadows:
@@ -167,6 +178,7 @@ class RulerScrubberStyle {
         other.needleColor == needleColor &&
         other.labelStyle == labelStyle &&
         other.shape == shape &&
+        other.borderless == borderless &&
         listEquals(other.activeShadows, activeShadows) &&
         listEquals(other.activeNeedleShadows, activeNeedleShadows);
   }
@@ -182,6 +194,7 @@ class RulerScrubberStyle {
     needleColor,
     labelStyle,
     shape,
+    borderless,
     Object.hashAll(activeShadows),
     Object.hashAll(activeNeedleShadows),
   );

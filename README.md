@@ -1,7 +1,9 @@
 # ruler_scrubber
 
 [![pub package](https://img.shields.io/pub/v/ruler_scrubber.svg)](https://pub.dev/packages/ruler_scrubber)
-[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![pub points](https://img.shields.io/pub/points/ruler_scrubber)](https://pub.dev/packages/ruler_scrubber/score)
+[![CI](https://github.com/CtrlAltDevelop/ruler_scrubber/actions/workflows/ci.yml/badge.svg)](https://github.com/CtrlAltDevelop/ruler_scrubber/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/CtrlAltDevelop/ruler_scrubber/blob/main/LICENSE)
 
 An accessible, performant ruler-style numeric input for Flutter. The ruler
 scrolls under a stationary needle, so a wide range stays scrubbable at a fine
@@ -16,7 +18,14 @@ the flick carries on scrolling after the finger has gone.
 
 ![The same three scrubbers on a dark card, the middle one lit up mid-scrub](doc/screenshot_dark.png)
 
-All three pictures are of the widget itself, rendered by
+With `borderless: true` the card keeps its corner and background but loses its
+outline, so the scrubber sits flat on the surface behind it:
+
+![Three borderless ruler scrubbers on a light card, the middle one mid-scrub](doc/screenshot_borderless.png)
+
+![The same three borderless scrubbers on a dark card](doc/screenshot_borderless_dark.png)
+
+All of these pictures are of the widget itself, rendered by
 [`tool/screenshot_test.dart`](tool/screenshot_test.dart) and
 [`tool/animation_test.dart`](tool/animation_test.dart) rather than captured by
 hand. In the stills the middle scrubber is held mid-drag, which is why its card
@@ -36,6 +45,17 @@ travel.
 ```sh
 flutter pub add ruler_scrubber
 ```
+
+Or add it to `pubspec.yaml` yourself — it is a runtime dependency:
+
+```yaml
+dependencies:
+  ruler_scrubber: ">=1.2.0 <2.0.0"
+  material_ui: ">=1.1.0 <2.0.0"
+```
+
+Requires Flutter 3.44.0 or newer — Dart 3.12.0 — which is `material_ui`'s own
+floor.
 
 The package is built on [`material_ui`](https://pub.dev/packages/material_ui),
 the official Material Design library that used to live inside the SDK as
@@ -167,7 +187,7 @@ shape: const RoundedRectangleBorder(          // the default, radius 10
 shape: const StadiumBorder(side: BorderSide(width: 1.5)),   // a pill
 shape: const ContinuousRectangleBorder(...),                // a superellipse
 shape: SmoothRectangleBorder(...),                          // figma_squircle
-shape: const RoundedRectangleBorder(side: BorderSide.none), // no border
+borderless: true,                                           // no border
 ```
 
 The shape's own `side` is drawn as given, except for its colour: that comes
