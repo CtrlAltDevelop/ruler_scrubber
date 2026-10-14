@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.3.0
+
+- `majorTickEvery` sets how many ticks apart the tall marks are (default 5, as
+  before). `labelEvery` is now nullable and defaults to `null`, which numbers
+  every major tick — so a ruler with `majorTickEvery: 10` is numbered on its
+  tall marks without a second setting.
+- Fixed: with a `step`, a scrub that stopped between ticks left the needle
+  resting on a different number from the one reported. The ruler now settles
+  onto the value it reported.
+- Fixed: a `tickStep` the parent changed during a scrub was only adopted by
+  the next rebuild; it is now adopted when the ruler comes to rest.
+- Fixed: an inline `labelFormat` closure emptied the label cache on every
+  rebuild — every frame of a scrub — so each label was laid out again each
+  frame. The cache is keyed by what a label says and is no longer flushed by a
+  new closure.
+- Fixed: the spoken value, and the increase and decrease values, are clamped
+  to the range like the drawn one.
+- Publishing to pub.dev is automated: pushing a `vX.Y.Z` tag on main runs
+  `.github/workflows/publish.yml`, which verifies the tag against the pubspec
+  and CHANGELOG and publishes with GitHub OIDC rather than a stored secret.
+
 ## 1.2.0
 
 - `RulerScrubberStyle.borderless` draws the card without its border, keeping

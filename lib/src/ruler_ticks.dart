@@ -37,6 +37,7 @@ class RulerTicks extends StatefulWidget {
     required this.majorColor,
     this.labelFormat,
     this.labelEvery = kRulerMajorTickEvery,
+    this.majorTickEvery = kRulerMajorTickEvery,
     this.labelStyle,
     this.minValue = 0,
     this.tickStep = 1,
@@ -62,6 +63,9 @@ class RulerTicks extends StatefulWidget {
 
   /// How many ticks apart the labelled ones are.
   final int labelEvery;
+
+  /// How many ticks apart the tall ones are.
+  final int majorTickEvery;
 
   /// Type the labels are drawn in. Falls back to a small label in
   /// [majorColor].
@@ -94,14 +98,13 @@ class _RulerTicksState extends State<RulerTicks> {
   void didUpdateWidget(RulerTicks oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Anything that changes what a label says, or how it looks, makes the ones
-    // already laid out worthless.
-    if (oldWidget.labelFormat != widget.labelFormat ||
-        oldWidget.labelStyle != widget.labelStyle ||
+    // Labels are keyed by the text they say, so a new format, range or scale
+    // needs no flush — and an inline closure, new on every rebuild, must not
+    // empty the cache on every frame of a scrub. Only what changes how a label
+    // looks makes the ones already laid out worthless.
+    if (oldWidget.labelStyle != widget.labelStyle ||
         oldWidget.majorColor != widget.majorColor ||
-        oldWidget.textDirection != widget.textDirection ||
-        oldWidget.minValue != widget.minValue ||
-        oldWidget.tickStep != widget.tickStep) {
+        oldWidget.textDirection != widget.textDirection) {
       _clearLabels();
     }
   }
@@ -131,6 +134,7 @@ class _RulerTicksState extends State<RulerTicks> {
           majorColor: widget.majorColor,
           labelFormat: widget.labelFormat,
           labelEvery: widget.labelEvery,
+          majorTickEvery: widget.majorTickEvery,
           labelStyle: widget.labelStyle,
           minValue: widget.minValue,
           tickStep: widget.tickStep,
@@ -150,6 +154,7 @@ class _RulerTicksPainter extends CustomPainter {
     required this.majorColor,
     required this.labelFormat,
     required this.labelEvery,
+    required this.majorTickEvery,
     required this.labelStyle,
     required this.minValue,
     required this.tickStep,
@@ -163,6 +168,7 @@ class _RulerTicksPainter extends CustomPainter {
   final Color majorColor;
   final String Function(double value)? labelFormat;
   final int labelEvery;
+  final int majorTickEvery;
   final TextStyle? labelStyle;
   final double minValue;
   final double tickStep;
@@ -273,7 +279,7 @@ class _RulerTicksPainter extends CustomPainter {
 
     for (var i = first; i <= last; i++) {
       final x = half - _offset + i * kRulerTickSpacing;
-      final isMajor = i % kRulerMajorTickEvery == 0;
+      final isMajor = i % majorTickEvery == 0;
       final height = isMajor ? kRulerMajorTickHeight : kRulerMinorTickHeight;
 
       canvas.drawLine(
@@ -306,6 +312,7 @@ class _RulerTicksPainter extends CustomPainter {
       oldDelegate.majorColor != majorColor ||
       oldDelegate.labelFormat != labelFormat ||
       oldDelegate.labelEvery != labelEvery ||
+      oldDelegate.majorTickEvery != majorTickEvery ||
       oldDelegate.labelStyle != labelStyle ||
       oldDelegate.minValue != minValue ||
       oldDelegate.tickStep != tickStep ||

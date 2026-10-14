@@ -110,7 +110,8 @@ setting it from anywhere other than the ruler runs the ruler to it.
 | `semanticLabel` | `String` | Spoken name of the control. |
 | `formatValue` | `String Function(double)?` | Spoken form of the value. Defaults to two decimal places. |
 | `labelFormat` | `String Function(double)?` | Prints a number under labelled ticks. `null` — the default — draws a ruler of bare marks. |
-| `labelEvery` | `int` | How many ticks apart the numbered ones are. Defaults to every major (fifth) tick. |
+| `labelEvery` | `int?` | How many ticks apart the numbered ones are. `null` — the default — numbers every major tick. |
+| `majorTickEvery` | `int` | How many ticks apart the tall marks are. Defaults to 5; 10 makes a ruler that reads in tens. |
 | `enabled` | `bool` | Whether the ruler can be scrubbed. A disabled one is dimmed and inert, still readable and still a slider. |
 | `enableFeedback` | `bool` | Whether crossing a tick clicks. Turn it off on a screen with several scrubbers. |
 | `focusNode`, `autofocus` | `FocusNode?`, `bool` | Take part in an existing focus traversal. |

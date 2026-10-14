@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
@@ -30,8 +31,8 @@ class RulerScrubber extends StatefulWidget {
   /// Creates a ruler scrubber resting on [value], reporting scrubs through
   /// [onChanged].
   ///
-  /// [min] must not exceed [max], and [tickStep], [step] and [labelEvery] must
-  /// be positive.
+  /// [min] must not exceed [max], and [tickStep], [step], [majorTickEvery] and
+  /// [labelEvery] must be positive.
   const RulerScrubber({
     super.key,
     required this.value,
@@ -45,7 +46,8 @@ class RulerScrubber extends StatefulWidget {
     this.onChangeEnd,
     this.formatValue,
     this.labelFormat,
-    this.labelEvery = kRulerMajorTickEvery,
+    this.labelEvery,
+    this.majorTickEvery = kRulerMajorTickEvery,
     this.style,
     this.enabled = true,
     this.enableFeedback = true,
@@ -55,7 +57,11 @@ class RulerScrubber extends StatefulWidget {
   }) : assert(min <= max, 'min must not be greater than max'),
        assert(tickStep > 0, 'tickStep must be positive'),
        assert(step == null || step > 0, 'step must be positive when given'),
-       assert(labelEvery > 0, 'labelEvery must be positive');
+       assert(
+         labelEvery == null || labelEvery > 0,
+         'labelEvery must be positive',
+       ),
+       assert(majorTickEvery > 0, 'majorTickEvery must be positive');
 
   /// Where the ruler sits. Clamped into `[min, max]` before it is drawn, so an
   /// out-of-range value cannot scroll the ruler off its ends.
@@ -101,10 +107,14 @@ class RulerScrubber extends StatefulWidget {
   /// something different for every tick has nothing to reuse.
   final String Function(double value)? labelFormat;
 
-  /// How many ticks apart the labelled ones are. The default numbers every
-  /// major tick; a multiple of [kRulerMajorTickEvery] keeps the numbers on the
-  /// tall marks, and a larger one thins them out on a crowded ruler.
-  final int labelEvery;
+  /// How many ticks apart the labelled ones are. `null` — the default —
+  /// numbers every major tick; a multiple of [majorTickEvery] keeps the numbers
+  /// on the tall marks, and a larger one thins them out on a crowded ruler.
+  final int? labelEvery;
+
+  /// How many ticks apart the tall marks are. Five by default; ten makes a
+  /// ruler that reads in tens, and `1` draws every tick tall.
+  final int majorTickEvery;
 
   /// Visual treatment for the scrubber. Falls back to the nearest
   /// [RulerScrubberTheme], and then to the surrounding Material theme.
@@ -321,6 +331,34 @@ class _RulerScrubberState extends State<RulerScrubber> {
     if (isScrubbing == _isScrubbing) return;
     if (isScrubbing) widget.onChangeStart?.call(_valueOf(_controller.offset));
     setState(() => _isScrubbing = isScrubbing);
+    // Not from inside the notification: the scroll position is still in the
+    // middle of going idle, and a run begun there is cancelled by it.
+    if (!isScrubbing) scheduleMicrotask(_restOnValue);
+  }
+
+  /// Brings a ruler that has just stopped to rest on the value it reported.
+  ///
+  /// A scrub is free of the grid until it stops — the finger lands wherever it
+  /// lands, and only the reported value is snapped to [RulerScrubber.step] — so
+  /// without this the needle would rest between ticks reading a different
+  /// number from the one it reported. It also adopts a scale the parent moved
+  /// to mid-scrub, which [didUpdateWidget] had to leave alone until now.
+  void _restOnValue() {
+    // A finger that landed in the meantime owns the ruler again.
+    if (!mounted || _isScrubbing || !_controller.hasClients) return;
+
+    final value = _valueOf(_controller.offset);
+
+    if (widget.tickStep != _tickStep) {
+      setState(() => _tickStep = widget.tickStep);
+      _jumpTo(_offsetOf(value));
+      return;
+    }
+
+    final target = _offsetOf(value);
+    if ((target - _controller.offset).abs() >= kRulerSettleTolerance) {
+      _settleTo(target);
+    }
   }
 
   // ── Keyboard and semantics ─────────────────────────────────────────────
@@ -386,6 +424,7 @@ class _RulerScrubberState extends State<RulerScrubber> {
 
   @override
   Widget build(BuildContext context) {
+    final value = widget.value.clamp(widget.min, widget.max);
     final style =
         widget.style ??
         RulerScrubberTheme.maybeOf(context) ??
@@ -415,7 +454,8 @@ class _RulerScrubberState extends State<RulerScrubber> {
                 minorColor: style.minorTickColor,
                 majorColor: style.majorTickColor,
                 labelFormat: widget.labelFormat,
-                labelEvery: widget.labelEvery,
+                majorTickEvery: widget.majorTickEvery,
+                labelEvery: widget.labelEvery ?? widget.majorTickEvery,
                 labelStyle: style.labelStyle,
                 minValue: widget.min,
                 tickStep: _tickStep,
@@ -457,9 +497,9 @@ class _RulerScrubberState extends State<RulerScrubber> {
       slider: true,
       enabled: widget.enabled,
       label: widget.semanticLabel,
-      value: _spoken(widget.value),
-      increasedValue: _spoken(math.min(widget.max, widget.value + _nudge)),
-      decreasedValue: _spoken(math.max(widget.min, widget.value - _nudge)),
+      value: _spoken(value),
+      increasedValue: _spoken(math.min(widget.max, value + _nudge)),
+      decreasedValue: _spoken(math.max(widget.min, value - _nudge)),
       onIncrease: widget.enabled ? () => _nudgeBy(_nudge) : null,
       onDecrease: widget.enabled ? () => _nudgeBy(-_nudge) : null,
       child: Focus(
