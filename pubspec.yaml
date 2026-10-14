@@ -39,7 +39,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  material_ui: ">=1.1.0 <2.0.0"
+  material_ui: ">=1.0.0 <2.0.0"
 
 dev_dependencies:
   # Encodes the animated demo in tool/animation_test.dart. Tools only — it is

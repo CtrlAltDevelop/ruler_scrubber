@@ -2,6 +2,9 @@
 
 ## 1.3.0
 
+- The `material_ui` floor drops to 1.0.0, the first stable release, so an app
+  already on it does not have to move. It asks for the same Dart and Flutter
+  SDKs as 1.1.0.
 - `majorTickEvery` sets how many ticks apart the tall marks are (default 5, as
   before). `labelEvery` is now nullable and defaults to `null`, which numbers
   every major tick — so a ruler with `majorTickEvery: 10` is numbered on its
