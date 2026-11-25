@@ -4,6 +4,7 @@
 [![pub points](https://img.shields.io/pub/points/ruler_scrubber)](https://pub.dev/packages/ruler_scrubber/score)
 [![CI](https://github.com/CtrlAltDevelop/ruler_scrubber/actions/workflows/ci.yml/badge.svg)](https://github.com/CtrlAltDevelop/ruler_scrubber/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/CtrlAltDevelop/ruler_scrubber/blob/main/LICENSE)
+[![live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ctrlaltdevelop.github.io/ruler_scrubber/)
 
 An accessible, performant ruler-style numeric input for Flutter. The ruler
 scrolls under a stationary needle, so a wide range stays scrubbable at a fine
